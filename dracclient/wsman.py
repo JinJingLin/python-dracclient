@@ -72,6 +72,7 @@ class Client(object):
             'host': self.host,
             'port': self.port,
             'path': self.path})
+        self.timeout = constants.DEFAULT_WSMAN_SSL_TIMEOUT
 
     def _do_request(self, payload):
         payload = payload.build()
@@ -87,10 +88,12 @@ class Client(object):
                                                      self.password),
                     data=payload,
                     # TODO(ifarkas): enable cert verification
-                    verify=False)
+                    verify=False,
+                    timeout=self.timeout)
                 break
             except (requests.exceptions.ConnectionError,
-                    requests.exceptions.SSLError) as ex:
+                    requests.exceptions.SSLError,
+                    requests.exceptions.Timeout) as ex:
 
                 error_msg = "A {error_type} error occurred while " \
                     " communicating with {host}, attempt {num_tries} of " \
